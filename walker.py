@@ -38,8 +38,9 @@ class Walker:
         subdirs_to_check = []
         try:
             direntries = os.scandir(folder_path)
-        except PermissionError:
+        except (PermissionError, FileNotFoundError):
             #Access denied
+            print ("*", end  = '')
             return
         
         self.dircount += 1
@@ -104,11 +105,13 @@ def main():
     try:
         w.walk_tree()
     except:
-        print ("Error encountered, will still writre partial result set.")
-    df = w.get_results_df()
-    fname = os.path.join(output_path, datetime.datetime.isoformat(datetime.datetime.now()).replace(":", "") + '.pq')
-    df.to_parquet(fname)
-    print ("Saved as ", fname)
+        print ("Error encountered, will still write partial result set.")
+        raise()
+    finally:
+        df = w.get_results_df()
+        fname = os.path.join(output_path, datetime.datetime.isoformat(datetime.datetime.now()).replace(":", "") + '.pq')
+        df.to_parquet(fname)
+        print ("Saved as ", fname)
 
 if __name__ == "__main__":
     main()
